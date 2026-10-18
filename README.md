@@ -13,7 +13,7 @@
 
 **Red-team workbench. Two tabs. Two deploy targets. Generates captive portals and BadUSB payloads from natural language, then drops them on a WiFi Pineapple or any Bruce-compatible device with one click.**
 
-[![Downloads](https://img.shields.io/github/downloads/MS-XIII/argus-forge/total?style=flat&label=downloads&color=ff3344)](#)
+[![Downloads](https://img.shields.io/github/downloads/MS-XIII/AIForge/latest/ArgusForge.zip?displayAssetName=false&label=downloads)](#)
 [![Platform](https://img.shields.io/badge/platform-Windows-blue)](#)
 [![Python](https://img.shields.io/badge/python-3.10%2B-3776AB)](#)
 [![Built with Nuitka](https://img.shields.io/badge/built%20with-Nuitka-2C2C2C)](#)

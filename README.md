@@ -1,22 +1,23 @@
 <!--
-  AI FORGE — README
-  Placeholder assets live in assets/. Drop your animated SVGs there and
-  swap the plain-text banner below for <img src="assets/banner-animated.svg">
-  when you're ready. The reference repo uses pure SMIL (no JS) so they
-  render natively on github.com.
+  ARGUS FORGE — README
+  The boot splash is a Three.js particle field rendered in a pywebview (WebView2)
+  window. splash/ (splash.html + three.min.js + logo.png) and ui/ (ArgusForge.ico)
+  must be bundled as data:
+    PyInstaller spec -> datas=[('splash', 'splash'), ('ui', 'ui')]
+    Nuitka          -> --include-data-dir=splash=splash
 -->
 
 <div align="center">
 
-# AI FORGE
+# ARGUS FORGE
 
-**Red-team workbench. Two tabs. One endpoint. Generates captive portals and BadUSB payloads from natural language, then drops them on a WiFi Pineapple with one click.**
+**Red-team workbench. Two tabs. Two deploy targets. Generates captive portals and BadUSB payloads from natural language, then drops them on a WiFi Pineapple or any Bruce-compatible device with one click.**
 
-[![Platform](https://img.shields.io/badge/platform-Windows-0078d4?style=flat-square)](#)
-[![Python](https://img.shields.io/badge/python-3.10%2B-3776ab?style=flat-square)](#)
-[![Built with Nuitka](https://img.shields.io/badge/built%20with-Nuitka-orange?style=flat-square)](#)
-[![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](#license)
-[![Status](https://img.shields.io/badge/status-active-brightgreen?style=flat-square)](#roadmap)
+[![Downloads](https://img.shields.io/github/downloads/MS-XIII/argus-forge/total?style=flat&label=downloads&color=ff3344)](#)
+[![Platform](https://img.shields.io/badge/platform-Windows-blue)](#)
+[![Python](https://img.shields.io/badge/python-3.10%2B-3776AB)](#)
+[![Built with Nuitka](https://img.shields.io/badge/built%20with-Nuitka-2C2C2C)](#)
+[![License](https://img.shields.io/badge/license-MIT-ff3344)](#license)
 
 </div>
 
@@ -24,9 +25,9 @@
 
 ## Overview
 
-**AI FORGE** is a local, self-contained red-team GUI that turns a plain-text prompt into a finished offensive-tooling artifact. Two tabs, each targeting a different engagement surface: **Evil Portal** for captive-portal phishing infrastructure, **Bad USB** for keystroke-injection payloads. Both sit on top of any OpenAI-compatible chat-completion endpoint — OpenAI, OpenRouter, Groq, Together, vLLM, llama.cpp, Ollama, or a self-hosted box — so the LLM backend is whatever you point it at, not whatever someone else decided.
+**ARGUS FORGE** is a local, self-contained red-team GUI that turns a plain-text prompt into a finished offensive-tooling artifact. Two tabs, each targeting a different engagement surface: **Evil Portal** for captive-portal phishing infrastructure, **Bad USB** for keystroke-injection payloads. Both sit on top of any OpenAI-compatible chat-completion endpoint — OpenAI, OpenRouter, Groq, Together, vLLM, llama.cpp, Ollama, or a self-hosted box — so the LLM backend is whatever you point it at, not whatever someone else decided.
 
-The generated artifact lands in an output pane, gets validated by you, and ships to a **WiFi Pineapple** over its REST API with one button. No copy-paste-into-SSH, no scp dance. The Pineapple is pinged, authenticated, and written to — all on a background thread so the UI never blocks.
+The generated artifact lands in an output pane, gets validated by you, and ships to a **WiFi Pineapple** over its REST API — or to any **Bruce-compatible device** (M5Stack, LilyGo, ESP32-family boards running Bruce firmware) over its HTTP file interface — with one button. No copy-paste-into-SSH, no scp dance. The target is pinged, authenticated, and written to — all on a background thread so the UI never blocks.
 
 Every generation is routed through a fixed **Repository** system prompt — a persona doctrine that produces code-first output in a consistent format. It is the same prompt on both tabs; a short tab-context suffix tells the model which workspace it's on.
 
@@ -46,30 +47,39 @@ The build pipeline compiles the whole thing to a native Windows binary with **Nu
 
 - **One-click Pineapple deploy** — hit `SEND // PINEAPPLE`, the tool checks reachability at `172.16.42.1:1471`, logs in with your creds, and writes the current output to `/root/` with a timestamped filename. `.html` for portals, `.txt` for BadUSB payloads. If the Pineapple isn't up, you get an explicit error instead of a silent timeout.
 
-- **Animated splash** — borderless, centered, fades in from alpha 0. Devil face drawn at runtime from a 16×16 colour grid, blown up 5× on a layered crimson halo. Letter-spaced `L O A D I N G`, then a pill-shaped progress bar with a glowing head that fills over ~2.5 seconds.
+- **One-click Bruce deploy** — the same button routes to any Bruce-compatible device (M5Stack Cardputer, LilyGo T-Embed / T-Deck, ESP32-S3 boards, etc.). ARGUS FORGE authenticates against the Bruce WebUI and pushes the artifact to the correct on-device folder (`/evilportal/` for HTML, `/badusb/` for scripts) with a timestamped filename. Devices that don't respond are skipped cleanly without blocking the queue.
 
-- **Runtime-generated icon** — `devil.ico` is written on first launch by a pure-stdlib ICO writer. No binary blobs in the repo, no PIL dependency, no external asset pipeline. The same pixel grid that draws the splash drives the `.ico`, the taskbar thumbnail, and the title-bar icon.
+- **Animated splash** — a borderless pywebview (WebView2) window renders a Three.js particle field in purple (`#8B5CF6`) with a glowing centered ARGUS FORGE logo, a letter-spaced title, and a progress bar that fills over ~3 seconds, then fades out into the main window.
+
+- **Bundled icon** — `ui/ArgusForge.ico` ships as data and is applied to the window, the taskbar, and the compiled exe. No runtime generation, no PIL dependency, no external asset pipeline.
 
 - **Dark red-team skin** — near-black base (`#0a0b0e`), crimson accent (`#ff3344`), mono typography throughout. Cards, accent bars, hover states, a status pill that tracks state with a coloured dot. The OS title bar is flipped to dark mode via a single `DwmSetWindowAttribute` call.
 
-- **Config persistence** — API key, base URL, model, and all Pineapple credentials live in `~/.aiforge.json`. Loaded on start, saved on Settings dialog close. Corrupt file falls back to defaults instead of crashing.
+- **Config persistence** — API key, base URL, model, GitHub token, Pineapple creds, and Bruce creds all live in `~/.argusforge.json`. Loaded on start, saved on Settings dialog close. Corrupt file falls back to defaults instead of crashing.
 
 - **Runtime hardening** — `hardening.py` runs anti-analysis guards on startup when the binary is compiled. Debugger detection (`IsDebuggerPresent`, `CheckRemoteDebuggerPresent`, `NtQueryInformationProcess` for `ProcessDebugPort` and `ProcessDebugFlags`), VM/sandbox heuristics (MAC OUI, registry markers, driver files), RE-tool process scan, and a timing check for single-stepping. Any trip exits silently with code `0xBEEF`.
 
 - **Nuitka build, no bytecode on disk** — compile with the provided command and the shipped artifact is a native Windows binary. `pyinstxtractor` and `uncompyle6` are useless against it. Standard Nuitka already defeats the common RE pipeline; the hardening layer is the second fence.
 
-- **XOR-hideable system prompt** — optional base64+XOR encoding path for the Repository prompt so `strings AIForge.exe | grep Repository` returns nothing. Decode path is built into the file; set `_SYSTEM_PROMPT_B64` and delete the raw literal when you want it.
+- **XOR-hideable system prompt** — optional base64+XOR encoding path for the Repository prompt so `strings ArgusForge.exe | grep Repository` returns nothing. Decode path is built into the file; set `_SYSTEM_PROMPT_B64` and delete the raw literal when you want it.
 
 ---
 
 ## Repository Structure
 
 ```
-ai-forge/
-├── evilcreations.py          # Entry point. GUI, tabs, AI calls, Pineapple deploy.
+argus-forge/
+├── evilcreations.py          # Entry point. GUI, tabs, AI calls, Pineapple + Bruce deploy.
 ├── hardening.py              # Runtime anti-analysis guards (called from main).
-├── make_icon.py              # Standalone devil.ico generator (no GUI needed).
-├── devil.ico                 # Generated on first run. Not committed.
+├── ArgusForge.spec           # PyInstaller build spec (bundles splash/ + ui/).
+│
+├── splash/                   # Three.js boot splash (rendered in a WebView2 window).
+│   ├── splash.html           # Particle field + glow + progress. Calls pywebview.api.finish().
+│   ├── three.min.js          # Three.js runtime.
+│   └── logo.png              # ARGUS FORGE logo.
+│
+├── ui/
+│   └── ArgusForge.ico        # Window / taskbar / embedded exe icon.
 │
 ├── assets/                   # Optional. Reference-repo style animated SVGs.
 │   ├── banner-animated.svg   # Pure SMIL. No JS. Renders on github.com.
@@ -90,14 +100,27 @@ ai-forge/
 
 ## Tab Reference
 
-Flat catalog of every generation surface. Each tab is scoped to one engagement class and one output format. Both ship to the Pineapple at `/root/`.
+Flat catalog of every generation surface. Each tab is scoped to one engagement class and one output format. Both ship to the Pineapple under `/root/` and to Bruce devices under their native folders.
 
-| # | Tab | Generates | Output | Ext | Deploy Path |
-|---|-----|-----------|--------|-----|-------------|
-| 1 | **Evil Portal** | Captive-portal HTML/CSS/JS, login page clones, Flask/Node/PHP capture backends, deployment notes | Portal artifact | `.html` | `/root/portal_<ts>.html` |
-| 2 | **Bad USB** | DuckyScript (Rubber Ducky / Hak5), Flipper Zero `.badusb`, O.MG cable payloads, companion PowerShell / bash stagers | Payload script | `.txt` | `/root/badusb_<ts>.txt` |
+| # | Tab | Generates | Output | Ext | Pineapple Path | Bruce Path |
+|---|-----|-----------|--------|-----|----------------|------------|
+| 1 | **Evil Portal** | Captive-portal HTML/CSS/JS, login page clones, Flask/Node/PHP capture backends, deployment notes | Portal artifact | `.html` | `/root/portal_<ts>.html` | `/evilportal/portal_<ts>.html` |
+| 2 | **Bad USB** | DuckyScript (Rubber Ducky / Hak5), Flipper Zero `.badusb`, O.MG cable payloads, companion PowerShell / bash stagers | Payload script | `.txt` | `/root/badusb_<ts>.txt` | `/badusb/badusb_<ts>.txt` |
 
 **Note:** Both tabs read from the same Repository prompt but append a tab-scoped context line before the model sees the request. Portal requests are biased toward complete HTML with a working backend; BadUSB requests are biased toward target-specific execution chains and clean exits.
+
+---
+
+## Supported Deploy Targets
+
+ARGUS FORGE pushes artifacts to two classes of hardware:
+
+| Target | Auth | Transport | Files land at |
+|--------|------|-----------|---------------|
+| WiFi Pineapple Mark VII | Basic auth | REST API on `:1471` | `/root/` |
+| Bruce firmware devices — M5Stack Cardputer / StickC, LilyGo T-Embed / T-Deck, ESP32-S3 boards | Device WebUI auth | HTTP upload to the Bruce web server (`/api/upload`) | `/evilportal/`, `/badusb/` |
+
+Bruce firmware is a multi-tool suite for ESP32 hardware; ARGUS FORGE speaks to its built-in web interface for file drops. If you can reach it from your workstation, ARGUS FORGE can write to it.
 
 ---
 
@@ -118,8 +141,9 @@ Flat catalog of every generation surface. Each tab is scoped to one engagement c
 | OpenAI-compatible backend | ✅ Active |
 | Repository system prompt | ✅ Active |
 | Pineapple auto-deploy | ✅ Active |
-| Animated splash | ✅ Active |
-| Runtime `devil.ico` writer | ✅ Active |
+| Bruce multi-device auto-deploy | ✅ Active |
+| Animated Three.js splash | ✅ Active |
+| Bundled icon (`ui/ArgusForge.ico`) | ✅ Active |
 | Dark red-team skin | ✅ Active |
 | Runtime hardening guards | 🔧 Build-only |
 | XOR system-prompt encoding | 🧪 Experimental |
@@ -129,9 +153,7 @@ Flat catalog of every generation surface. Each tab is scoped to one engagement c
 
 ## Quick Start
 
-```bash
-Download exe and run. simple.
-```
+Download the exe and run. Simple.
 
 First launch opens a splash, then the main window. Hit **SETTINGS** in the top-right and fill in:
 
@@ -142,24 +164,29 @@ First launch opens a splash, then the main window. Hit **SETTINGS** in the top-r
   - Local llama.cpp / Ollama: `http://localhost:8080/v1`
 - **Model** — e.g. `gpt-4o-mini`, `claude-sonnet-4`, `qwen2.5-coder-32b-instruct`.
 - **Pineapple Host / User / Pass / Write Endpoint** — defaults target a Mark VII on `172.16.42.1:1471`.
+- **Bruce Host / User / Pass** — point at the Bruce device's web interface (default `http://bruce.local`). Leave blank to skip Bruce on deploy.
 
-Save. Type a prompt on either tab. Hit **GENERATE**. Hit **SEND // PINEAPPLE** when the output looks right.
+Save. Type a prompt on either tab. Hit **GENERATE**. Hit **SEND // PINEAPPLE** (or **SEND // BRUCE**) when the output looks right.
 
 ---
 
 ## Configuration
 
-Config lives at `~/.aiforge.json`:
+Config lives at `~/.argusforge.json`:
 
 ```json
 {
   "api_key": "sk-...",
   "base_url": "https://api.openai.com/v1",
   "model": "gpt-4o-mini",
+  "github_token": "",
   "pineapple_host": "http://172.16.42.1:1471",
   "pineapple_user": "root",
   "pineapple_pass": "",
-  "pineapple_write_endpoint": "/api/files/write"
+  "pineapple_write_endpoint": "/api/files/write",
+  "bruce_host": "http://bruce.local",
+  "bruce_user": "admin",
+  "bruce_pass": "bruce"
 }
 ```
 
@@ -192,11 +219,12 @@ Any trip calls `_fail()`, which redirects stdout/stderr to `os.devnull` and exit
 |-------|--------|
 | Language | Python 3.10+ |
 | GUI | Tkinter / ttk (stdlib) |
+| Splash | pywebview (WebView2) + Three.js |
 | HTTP client | `requests` |
 | LLM backend | Any OpenAI-compatible `/v1/chat/completions` endpoint |
-| Deployment target | WiFi Pineapple Mark VII REST API |
+| Deploy targets | WiFi Pineapple Mark VII REST API · Bruce firmware HTTP interface (M5Stack, LilyGo, ESP32-S3) |
 | Build | Nuitka (`--standalone --onefile`) |
-| Icon pipeline | Pure stdlib (no PIL, no external assets) |
+| Icon | Bundled `ui/ArgusForge.ico` (no runtime generation, no PIL) |
 | Hardening | `ctypes` against `kernel32`, `ntdll`, `winreg`, `uuid` |
 
 ---
@@ -207,23 +235,24 @@ Any trip calls `_fail()`, which redirects stdout/stderr to `os.devnull` and exit
 - [x] OpenAI-compatible backend
 - [x] Repository system prompt + per-tab context injection
 - [x] WiFi Pineapple auto-deploy
-- [x] Animated splash with runtime-drawn devil icon
+- [x] Bruce-compatible multi-device auto-deploy
+- [x] Animated Three.js splash
 - [x] Dark red-team skin
-- [x] Runtime `devil.ico` writer (pure stdlib)
+- [x] Bundled window/taskbar icon (`ui/ArgusForge.ico`)
 - [x] Nuitka build pipeline
 - [x] Runtime hardening guards
 - [ ] XOR system-prompt encoding — shipped but undocumented in the default build
 - [ ] Additional tabs (WiFi scanning surface, BLE payloads, shell stagers)
 - [ ] Streaming token output on the current tab
 - [ ] Payload history / recall across sessions
-- [ ] Multi-target deploy queue (write to N pineapples in sequence)
+- [ ] Multi-target deploy queue (write to N Pineapples and N Bruce devices in sequence)
 - [ ] Animated SVG banner + logo (assets/ — pure SMIL, no JavaScript)
 
 ---
 
 ## License
 
-MIT. Do not do what you want because you cannot. remember copyright, this tool has been fitted with security and watermarks.
+MIT. Do not do what you want because you cannot. Remember copyright, this tool has been fitted with security and watermarks.
 
 ---
 

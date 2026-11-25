@@ -17,7 +17,7 @@
 [![Platform](https://img.shields.io/badge/platform-Windows-blue)](#)
 [![Python](https://img.shields.io/badge/python-3.10%2B-3776AB)](#)
 [![Built with Nuitka](https://img.shields.io/badge/built%20with-Nuitka-2C2C2C)](#)
-[![License](https://img.shields.io/badge/license-MIT-ff3344)](#license)
+[![License](https://img.shields.io/badge/license-GPLv3-ff3344)](#license)
 
 </div>
 

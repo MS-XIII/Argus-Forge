@@ -17,7 +17,7 @@
 [![Platform](https://img.shields.io/badge/platform-Windows-blue)](#)
 [![Python](https://img.shields.io/badge/python-3.10%2B-3776AB)](#)
 [![Built with Nuitka](https://img.shields.io/badge/built%20with-Nuitka-2C2C2C)](#)
-[![License](https://img.shields.io/badge/license-GPLv3-ff3344)](#license)
+[![License](https://img.shields.io/badge/license-AGPLv3-ff3344)](#license)
 
 </div>
 
@@ -254,7 +254,7 @@ Any trip calls `_fail()`, which redirects stdout/stderr to `os.devnull` and exit
 
 Copyright (c) 2026 MS-XIII
 
-This project is licensed under the GNU General Public License v3.0 (GPLv3). See the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU Affero General Public License v3.0 (AGPLv3). See the [LICENSE](LICENSE) file for details.
 
 ---
 

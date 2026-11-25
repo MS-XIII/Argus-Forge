@@ -252,7 +252,9 @@ Any trip calls `_fail()`, which redirects stdout/stderr to `os.devnull` and exit
 
 ## License
 
-MIT. Do not do what you want because you cannot. Remember copyright, this tool has been fitted with security and watermarks.
+Copyright (c) 2026 MS-XIII
+
+This project is licensed under the GNU General Public License v3.0 (GPLv3). See the [LICENSE](LICENSE) file for details.
 
 ---
 
